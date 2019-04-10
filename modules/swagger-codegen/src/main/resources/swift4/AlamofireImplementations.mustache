@@ -122,10 +122,10 @@ open class AlamofireRequestBuilder<T>: RequestBuilder<T> {
             validatedRequest.responseString(completionHandler: { (stringResponse) in
                 cleanupRequest()
 
-                if stringResponse.result.isFailure {
+                if case .failure(let error) = stringResponse.result {
                     completion(
                         nil,
-                        ErrorResponse.error(stringResponse.response?.statusCode ?? 500, stringResponse.data, stringResponse.result.error as Error!)
+                        ErrorResponse.error(stringResponse.response?.statusCode ?? 500, stringResponse.data, error)
                     )
                     return
                 }
@@ -192,10 +192,10 @@ open class AlamofireRequestBuilder<T>: RequestBuilder<T> {
             validatedRequest.responseData(completionHandler: { (voidResponse) in
                 cleanupRequest()
 
-                if voidResponse.result.isFailure {
+                if case .failure(let error) = voidResponse.result {
                     completion(
                         nil,
-                        ErrorResponse.error(voidResponse.response?.statusCode ?? 500, voidResponse.data, voidResponse.result.error!)
+                        ErrorResponse.error(voidResponse.response?.statusCode ?? 500, voidResponse.data, error)
                     )
                     return
                 }
@@ -211,10 +211,10 @@ open class AlamofireRequestBuilder<T>: RequestBuilder<T> {
             validatedRequest.responseData(completionHandler: { (dataResponse) in
                 cleanupRequest()
 
-                if dataResponse.result.isFailure {
+                if case .failure(let error) = dataResponse.result {
                     completion(
                         nil,
-                        ErrorResponse.error(dataResponse.response?.statusCode ?? 500, dataResponse.data, dataResponse.result.error!)
+                        ErrorResponse.error(dataResponse.response?.statusCode ?? 500, dataResponse.data, error)
                     )
                     return
                 }
@@ -324,10 +324,10 @@ open class AlamofireDecodableRequestBuilder<T:Decodable>: AlamofireRequestBuilde
             validatedRequest.responseString(completionHandler: { (stringResponse) in
                 cleanupRequest()
 
-                if stringResponse.result.isFailure {
+                if case .failure(let error) = stringResponse.result {
                     completion(
                         nil,
-                        ErrorResponse.error(stringResponse.response?.statusCode ?? 500, stringResponse.data, stringResponse.result.error as Error!)
+                        ErrorResponse.error(stringResponse.response?.statusCode ?? 500, stringResponse.data, error)
                     )
                     return
                 }
@@ -344,10 +344,10 @@ open class AlamofireDecodableRequestBuilder<T:Decodable>: AlamofireRequestBuilde
             validatedRequest.responseData(completionHandler: { (voidResponse) in
                 cleanupRequest()
 
-                if voidResponse.result.isFailure {
+                if case .failure(let error) = voidResponse.result {
                     completion(
                         nil,
-                        ErrorResponse.error(voidResponse.response?.statusCode ?? 500, voidResponse.data, voidResponse.result.error!)
+                        ErrorResponse.error(voidResponse.response?.statusCode ?? 500, voidResponse.data, error)
                     )
                     return
                 }
@@ -363,10 +363,10 @@ open class AlamofireDecodableRequestBuilder<T:Decodable>: AlamofireRequestBuilde
             validatedRequest.responseData(completionHandler: { (dataResponse) in
                 cleanupRequest()
 
-                if dataResponse.result.isFailure {
+                if case .failure(let error) = dataResponse.result {
                     completion(
                         nil,
-                        ErrorResponse.error(dataResponse.response?.statusCode ?? 500, dataResponse.data, dataResponse.result.error!)
+                        ErrorResponse.error(dataResponse.response?.statusCode ?? 500, dataResponse.data, error)
                     )
                     return
                 }
