@@ -1,5 +1,8 @@
 package io.swagger.codegen.languages;
 
+import com.samskivert.mustache.Escapers;
+import com.samskivert.mustache.Mustache;
+
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
@@ -356,9 +359,29 @@ public class Swift4Codegen extends DefaultCodegen implements CodegenConfig {
         if (this.reservedWordsMappings().containsKey(name)) {
             return this.reservedWordsMappings().get(name);
         }
-        return "_" + name;  // add an underscore to the name
+        return "`" + name + "`";
     }
 
+    @Override
+    public Mustache.Compiler processCompiler(Mustache.Compiler compiler) {
+        Mustache.Escaper SWIFT = new Mustache.Escaper() {
+            @Override public String escape (String text) {
+                // Fix included as suggested by akkie in #6393
+                // The given text is a reserved word which is escaped by enclosing it with grave accents. If we would
+                // escape that with the default Mustache `HTML` escaper, then the escaper would also escape our grave
+                // accents. So we remove the grave accents before the escaping and add it back after the escaping.
+                if (text.startsWith("`") && text.endsWith("`")) {
+                    String unescaped =  text.substring(1, text.length() - 1);
+                    return "`" + Escapers.HTML.escape(unescaped) + "`";
+                }
+                
+                // All none reserved words will be escaped with the default Mustache `HTML` escaper
+                return Escapers.HTML.escape(text);
+            }
+        };
+        return compiler.withEscaper(SWIFT);
+    }
+    
     @Override
     public String modelFileFolder() {
         return outputFolder + File.separator + sourceFolder

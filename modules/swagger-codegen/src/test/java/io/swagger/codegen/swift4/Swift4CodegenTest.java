@@ -16,12 +16,12 @@ public class Swift4CodegenTest {
 
     @Test
     public void testCapitalizedReservedWord() throws Exception {
-        Assert.assertEquals(swiftCodegen.toEnumVarName("AS", null), "_as");
+        Assert.assertEquals(swiftCodegen.toEnumVarName("AS", null), "`as`");
     }
 
     @Test
     public void testReservedWord() throws Exception {
-        Assert.assertEquals(swiftCodegen.toEnumVarName("Public", null), "_public");
+        Assert.assertEquals(swiftCodegen.toEnumVarName("Public", null), "`public`");
     }
 
     @Test
