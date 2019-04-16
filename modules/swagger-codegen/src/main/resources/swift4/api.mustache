@@ -36,8 +36,10 @@ open class {{classname}} {
      - parameter {{paramName}}: ({{#isFormParam}}form{{/isFormParam}}{{#isQueryParam}}query{{/isQueryParam}}{{#isPathParam}}path{{/isPathParam}}{{#isHeaderParam}}header{{/isHeaderParam}}{{#isBodyParam}}body{{/isBodyParam}}) {{description}} {{^required}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/required}}{{/allParams}}
      - parameter completion: completion handler to receive the data and the error objects
      */
-    open class func {{operationId}}({{#allParams}}{{paramName}}: {{#isEnum}}{{#isContainer}}{{{dataType}}}{{/isContainer}}{{^isContainer}}{{{datatypeWithEnum}}}_{{operationId}}{{/isContainer}}{{/isEnum}}{{^isEnum}}{{{dataType}}}{{/isEnum}}{{^required}}? = nil{{/required}}{{#hasMore}}, {{/hasMore}}{{/allParams}}{{#hasParams}}, {{/hasParams}}completion: @escaping ((_ data: {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}?,_ error: Error?) -> Void)) {
-        {{operationId}}WithRequestBuilder({{#allParams}}{{paramName}}: {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}).execute { (response, error) -> Void in
+    open class func {{operationId}}({{#allParams}}{{paramName}}: {{#isEnum}}{{#isContainer}}{{{dataType}}}{{/isContainer}}{{^isContainer}}{{{datatypeWithEnum}}}_{{operationId}}{{/isContainer}}{{/isEnum}}{{^isEnum}}{{{dataType}}}{{/isEnum}}{{^required}}? = nil{{/required}}{{#hasMore}}, {{/hasMore}}{{/allParams}}{{#hasParams}}, {{/hasParams}}configureRequest: @escaping (DataRequest) -> DataRequest = { $0 }, configureRequestBuilder: (RequestBuilder<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}>) -> Void = { _ in }, completion: @escaping ((_ data: {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}?,_ error: Error?) -> Void)) {
+        let builder = {{operationId}}WithRequestBuilder({{#allParams}}{{paramName}}: {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
+        configureRequestBuilder(builder)
+        builder.execute(configureRequest: configureRequest, completion: { (response, error) -> Void in
         {{#returnType}}
             completion(response?.body, error)
         {{/returnType}}
@@ -48,7 +50,7 @@ open class {{classname}} {
                 completion(nil, error)
             }
         {{/returnType}}
-        }
+        })
     }
 
 {{#usePromiseKit}}
