@@ -35,6 +35,8 @@ open class RequestBuilder<T> {
         addHeaders({{projectName}}API.customHeaders)
     }
 
+    open var retrier: RequestRetrier?
+
     open func addHeaders(_ aHeaders:[String:String]) {
         for (header, value) in aHeaders {
             headers[header] = value
