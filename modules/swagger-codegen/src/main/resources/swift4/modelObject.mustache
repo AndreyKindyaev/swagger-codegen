@@ -44,6 +44,7 @@ public struct {{classname}}: Codable {
             additionalProperties[key] = newValue
         }
     }
+{{/additionalPropertiesType}}
 
     // Encodable protocol methods
 
@@ -54,7 +55,9 @@ public struct {{classname}}: Codable {
         {{#allVars}}
         try container.encode{{^required}}IfPresent{{/required}}({{{name}}}, forKey: "{{{baseName}}}")
         {{/allVars}}
+        {{#additionalPropertiesType}}
         try container.encodeMap(additionalProperties)
+        {{/additionalPropertiesType}}
     }
 
     // Decodable protocol methods
@@ -62,17 +65,99 @@ public struct {{classname}}: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: String.self)
 
-        {{#allVars}}
+{{#allVars}}
+    {{#isLong}}
+        {{#required}}
+        do {
+            let sValue = try container.decode(String.self, forKey: "{{{baseName}}}")
+            guard let int64Value = Int64(sValue) else {
+                throw DecodingError.dataCorruptedError(
+                    forKey: "{{{baseName}}}",
+                    in: container,
+                    debugDescription: "Can't parse Int64 from String"
+                )
+            }
+            {{name}} = int64Value
+        } catch {
+            {{name}} = try container.decode(Int64.self, forKey: "{{{baseName}}}")
+        }
+        {{/required}}
+        {{^required}}
+        do {
+            if let sValue = try container.decodeIfPresent(String.self, forKey: "{{{baseName}}}") {
+                guard let int64Value = Int64(sValue) else {
+                    throw DecodingError.dataCorruptedError(
+                        forKey: "{{{baseName}}}",
+                        in: container,
+                        debugDescription: "Can't parse Int64 from String"
+                    )
+                }
+                {{name}} = int64Value
+            } else {
+                {{name}} = nil
+            }
+        } catch {
+            {{name}} = try container.decodeIfPresent(Int64.self, forKey: "{{{baseName}}}")
+        }
+        {{/required}}
+    {{/isLong}}
+    {{^isLong}}
+    {{#isListContainer}}
+    {{#items.isLong}}
+        {{#required}}
+        do {
+            let sArray = try container.decode([String].self, forKey: "{{{baseName}}}")
+            {{name}} = try sArray.map { sValue in
+                guard let int64Value = Int64(sValue) else {
+                    throw DecodingError.dataCorruptedError(
+                        forKey: "{{{baseName}}}",
+                        in: container,
+                        debugDescription: "Can't parse Int64 from String"
+                    )
+                }
+                return int64Value
+            }
+        } catch {
+            {{name}} = try container.decode([Int64].self, forKey: "{{{baseName}}}")
+        }
+        {{/required}}
+        {{^required}}
+        do {
+            if let sArray = try container.decodeIfPresent([String].self, forKey: "{{{baseName}}}") {
+                {{name}} = try sArray.map { sValue in
+                    guard let int64Value = Int64(sValue) else {
+                        throw DecodingError.dataCorruptedError(
+                            forKey: "{{{baseName}}}",
+                            in: container,
+                            debugDescription: "Can't parse Int64 from String"
+                        )
+                    }
+                    return int64Value
+                }
+            }
+        } catch {
+            {{name}} = try container.decodeIfPresent([Int64].self, forKey: "{{{baseName}}}")
+        }
+        {{/required}}
+    {{/items.isLong}}
+    {{^items.isLong}}
+        {{name}} = try container.decode{{^required}}IfPresent{{/required}}([{{{items.datatypeWithEnum}}}].self, forKey: "{{{baseName}}}")
+    {{/items.isLong}}
+    {{/isListContainer}}
+    {{^isListContainer}}
         {{name}} = try container.decode{{^required}}IfPresent{{/required}}({{{datatypeWithEnum}}}.self, forKey: "{{{baseName}}}")
-        {{/allVars}}
+    {{/isListContainer}}
+    {{/isLong}}
+{{/allVars}}
+    {{#additionalPropertiesType}}
         var nonAdditionalPropertyKeys = Set<String>()
         {{#allVars}}
         nonAdditionalPropertyKeys.insert("{{{baseName}}}")
         {{/allVars}}
         additionalProperties = try container.decodeMap({{{additionalPropertiesType}}}.self, excludedKeys: nonAdditionalPropertyKeys)
+    {{/additionalPropertiesType}}
     }
 
-{{/additionalPropertiesType}}
 {{^additionalPropertiesType}}{{#vendorExtensions.x-codegen-has-escaped-property-names}}
     public enum CodingKeys: String, CodingKey { {{#allVars}}
         case {{name}}{{#vendorExtensions.x-codegen-escaped-property-name}} = "{{{baseName}}}"{{/vendorExtensions.x-codegen-escaped-property-name}}{{/allVars}}
