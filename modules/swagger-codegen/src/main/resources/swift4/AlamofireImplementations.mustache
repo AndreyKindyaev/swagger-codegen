@@ -35,6 +35,7 @@ open class AlamofireRequestBuilder<T>: RequestBuilder<T> {
         configuration.httpAdditionalHeaders = buildHeaders()
         let session = Alamofire.SessionManager(configuration: configuration)
         session.retrier = retrier
+        session.adapter = adapter
         return session
     }
 
